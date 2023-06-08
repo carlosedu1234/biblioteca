@@ -1,30 +1,59 @@
-const leerUrls=async(req, res)=>{
+const Url = require('../models/Url');
+const shortid = require('shortid');
 
-    const urls = [
-        {
-            origin: "https://www.youtube.com/watch?v=xkHyM-K3Cd8&ab_channel=Bluuweb",
-            shorturl: "cursoNOdejs"
-        },
-        {
-            origin: "https://www.https://www.npmjs.com/package/express-handlebars.com/watch?v=xkHyM-K3Cd8&ab_channel=Bluuweb",
-            shorturl: "Npm"
-        },
-        {
-            origin: "https://mercadolibre.eightfold.ai/careers/search?pid=11792755&domain=mercadolibre.com&sort_by=relevance",
-            shorturl: "MercadoLibre"
-        },
-        {
-            origin: "https://mercadolibre.eightfold.ai/careers/search?pid=11792755&domain=mercadolibre.com&sort_by=relevance1",
-            shorturl: "MercadoLibre1"
-        }
-    ]
-    res.render('home', { urls: urls });
+
+const leerUrls = async (req, res) => {
+
+    try {
+        const urls = await Url.find().lean()
+        res.render("home", { urls: urls })
+
+    }
+    catch (err) {
+
+        console.log(err);
+        res.render("Fallo Algo");
+    }
+
 
 };
 
-const agregarUrl=async (req, res) => {};
+const agregarUrl = async (req, res) => {
+    const { origin } = req.body;
+
+    try {
+        const url = new Url({ origin: origin, shortURL: shortid() })
+        await url.save();
+        res.redirect("/");
+    }
+
+
+    catch (error) {
+
+        console.log("algo fallo, " + error);
+        res.send("algo fallo");
+    }
+
+};
+
+const eliminarUrl = async (req, res) => {
+    const { id } = req.params;
+    try {
+
+        await Url.findByIdAndDelete(id)
+        res.redirect("/");
+
+    }
+
+    catch (error) {
+
+        console.log("algo fallo, " + error);
+        res.send("algo fallo");
+    }
+};
 
 module.exports = {
     leerUrls,
     agregarUrl,
+    eliminarUrl,
 };
